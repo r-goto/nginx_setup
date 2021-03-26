@@ -15,3 +15,9 @@ end
 describe port(80) do
   it { should be_listening }
 end
+
+describe command('curl -s localhost') do
+  its('stdout') { should match /Welcome to/ }
+  its('stderr') { should eq '' }
+  its('exit_status') { should eq 0 }
+end
