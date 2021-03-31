@@ -2,32 +2,27 @@
 
 name: Test Kitchen
 
-on:
-  push:
-    paths-ignore:
-      - '.github/**'
-  workflow_dispatch:
+on: [ push, workflow_dispatch ]
   
 jobs:
-  Setup-ChefWorkstation:
+  Kitchen-Test:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
-      - name: Checking if installation required
+      
+      - name: Check if Chef installed
         continue-on-error: true
         id: check
         run: sudo dpkg -l | grep chef
-      - name: Installing ChefWorkstation v21.2.278
+        
+      - name: Install ChefWorkstation v21.2.278
         if: steps.check.outcome == 'failure'
         run: |
           wget -q https://packages.chef.io/files/stable/chef-workstation/21.2.278/ubuntu/20.04/chef-workstation_21.2.278-1_amd64.deb
           sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
           chef -v
   
-  Setup-Docker:
-    runs-on: self-hosted
-    steps:
-      - name: Download and Install Docker
+      - name: Install Docker
         run: |
           sudo apt update -y
           sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
@@ -38,27 +33,16 @@ jobs:
           sudo service docker start
           service docker status
 
-  Kitchen-Test:
-    runs-on: self-hosted
-    needs: [ Setup-Docker, Setup-ChefWorkstation ]
-    steps:
-      - name: Run kitchen test
+      - name: Converge Cookbook
         run: |
           kitchen destroy
           kitchen create
           kitchen converge
           
-  Results:
-    runs-on: self-hosted
-    needs: Kitchen-Test
-    steps:
-      - name: Run kitchen list
+      - name: Run Test
         run: kitchen verify
-  
-  Tidy-up:
-    runs-on: self-hosted
-    needs: Results
-    steps:
-      - name: Remove containers
+        
+      - name: Remove used-Docker Containers 
+        if: always()
         run: kitchen destroy
-  
+        
