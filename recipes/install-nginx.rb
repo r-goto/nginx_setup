@@ -44,3 +44,11 @@ template 'Create another root page' do
   owner 'root'
   path "/usr/share/nginx/html/#{node['nginx_setup']['root_index']}"
 end
+
+cookbook_file '/usr/share/nginx/html/chef-progress-logo.png' do
+  source 'chef-progress-logo.png'
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end

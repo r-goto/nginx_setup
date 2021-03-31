@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Welcome to Chef!</title>
+<title><%= node['hostname'] %></title>
 <style>
     body {
-        width: 35em;
+        width: 60em;
         margin: 0 auto;
         font-family: Tahoma, Verdana, Arial, sans-serif;
-        color: orangered;
+        color: rgb(14, 13, 13);
+        text-align: center
+    }
+    img {
+        background-color: black;
     }
 </style>
 </head>
 <body>
-<h1 style="font-size:24">Welcome to Chef!</h1>
-<h2>Hello from [<%= node['hostname'] %>] 2021/03/26</h2>
+<h1 style="text-align:center">Thank you for using Chef!</h1>
+<h2>Hello from [<%= node['hostname'] %>]</h2>
+<p style="color: black"><%= `date` %></p>
 <p style="color: black">If you see this page, the nginx web server is successfully updated with chef and
 working.</p>
 
-<p><em>Thank you for using Chef!!</em></p>
+<p><em>Welcome!!</em></p>
+<img src="/usr/share/nginx/html/chef-progress-logo.png" alt="Chef-Progress Official Logo"></img>
 </body>
 </html>

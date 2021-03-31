@@ -14,4 +14,4 @@ run_list 'nginx_setup::default'
 
 # Specify a custom source for a single cookbook:
 cookbook 'nginx_setup', path: '.'
-cookbook 'nginx', '~> 11.4.0', :supermarket
+cookbook 'nginx', '~> 11.5.1', :supermarket
