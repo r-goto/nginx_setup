@@ -9,14 +9,16 @@ on:
   workflow_dispatch:
   
 jobs:
-  Setup-ChefWorkstation:
+  Kitchen-Test:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
+      
       - name: Checking if installation required
         continue-on-error: true
         id: check
         run: sudo dpkg -l | grep chef
+        
       - name: Installing ChefWorkstation v21.2.278
         if: steps.check.outcome == 'failure'
         run: |
@@ -24,9 +26,6 @@ jobs:
           sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
           chef -v
   
-  Setup-Docker:
-    runs-on: self-hosted
-    steps:
       - name: Download and Install Docker
         run: |
           sudo apt update -y
@@ -38,22 +37,15 @@ jobs:
           sudo service docker start
           service docker status
 
-  Kitchen-Test:
-    runs-on: self-hosted
-    needs: [ Setup-Docker, Setup-ChefWorkstation ]
-    steps:
       - name: Run kitchen test
         run: |
           kitchen destroy
           kitchen create
           kitchen converge
           
-  Results:
-    runs-on: self-hosted
-    needs: Kitchen-Test
-    steps:
       - name: Run kitchen list
         run: kitchen verify
+        
       - name: Remove used-Docker Containers 
         if: always()
         run: kitchen destroy
