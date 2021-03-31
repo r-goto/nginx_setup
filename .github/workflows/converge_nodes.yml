@@ -48,19 +48,13 @@ jobs:
           kitchen create
           kitchen converge
           
-  Results:
+  Results&TidyUp:
     runs-on: self-hosted
     needs: Kitchen-Test
     steps:
       - name: Run kitchen list
         run: kitchen verify
-  
-  Tidy-up:
-    runs-on: self-hosted
-    needs: Results
-    steps:
-      - name: Remove containers
-        if: ${{ always() }}
+      - name: Remove used-Docker Containers 
+        if: always()
         run: kitchen destroy
         
-  
