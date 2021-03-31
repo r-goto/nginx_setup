@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Converge All Nodes
+
+on:
+  push:
+    paths-ignore:
+      - '.github/**'
+  workflow_dispatch:
+  
+jobs:
+  Setup-ChefWorkstation:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checking if installation required
+        continue-on-error: true
+        id: check
+        run: sudo dpkg -l | grep chef
+      - name: Installing ChefWorkstation v21.2.278
+        if: steps.check.outcome == 'failure'
+        run: |
+          wget -q https://packages.chef.io/files/stable/chef-workstation/21.2.278/ubuntu/20.04/chef-workstation_21.2.278-1_amd64.deb
+          sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
+          chef -v
+  
+  Setup-Docker:
+    runs-on: self-hosted
+    steps:
+      - name: Checking if installation required
+        continue-on-error: true
+        id: check
+        run: docker -v
+      - name: Installing ChefWorkstation v21.2.278
+        if: steps.check.outcome == 'failure'
+        run: |
+          sudo apt update -y
+          sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt install -y docker-ce docker-ce-cli containerd.io
+          docker -v
+
+  Test-Kitchen:
+    runs-on: self-hosted
+    needs: Setup-Docker
+    steps:
+      - name: Run kitchen test
+        run: |
+          kitchen test
