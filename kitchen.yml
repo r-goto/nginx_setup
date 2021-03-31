@@ -15,7 +15,7 @@ verifier:
 
 suites:
   - name: default
-      provisioner:
+    provisioner:
         policyfile: policyfile.rb
     run_list:
       - recipe[nginx_setup::default]
