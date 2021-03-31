@@ -38,7 +38,7 @@ jobs:
           sudo service docker start
           service docker status
 
-  Test-Kitchen:
+  Kitchen-Test:
     runs-on: self-hosted
     needs: [ Setup-Docker, Setup-ChefWorkstation ]
     steps:
@@ -48,9 +48,9 @@ jobs:
           kitchen create
           kitchen converge
           
-  Test-Results:
+  Results:
     runs-on: self-hosted
-    needs: Test-Kitchen
+    needs: Kitchen-Test
     steps:
       - name: Run kitchen list
         continue-on-error: true
@@ -58,7 +58,7 @@ jobs:
   
   Tidy-up:
     runs-on: self-hostted
-    needs: Test-Results
+    needs: Results
     steps:
       - name: Remove containers
         run: kitchen destroy
