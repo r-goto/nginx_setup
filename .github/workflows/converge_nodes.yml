@@ -47,4 +47,11 @@ jobs:
           kitchen destroy
           kitchen create
           kitchen converge
-          kitchen verify
+          
+  Test-Results:
+    runs-on: self-hosted
+    needs: Test-Kitchen
+    steps:
+      - name: Run kitchen list
+        run: kitchen verify
+  
