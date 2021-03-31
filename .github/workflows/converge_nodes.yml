@@ -27,17 +27,14 @@ jobs:
   Setup-Docker:
     runs-on: self-hosted
     steps:
-      - name: Checking if installation required
-        continue-on-error: true
-        id: check
-        run: docker -v
       - name: Download and Install Docker
-        if: steps.check.outcome == 'failure'
         run: |
           sudo apt update -y
           sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
           sudo apt install -y docker-compose
           docker -v
+          sudo usermod -aG docker $USER
+          sudo chmod 666 /var/run/docker.sock
           sudo service docker start
           service docker status
 
@@ -47,4 +44,7 @@ jobs:
     steps:
       - name: Run kitchen test
         run: |
-          sudo kitchen test
+          kitchen destroy
+          kitchen create
+          kitchen converge
+          kitchen verify
