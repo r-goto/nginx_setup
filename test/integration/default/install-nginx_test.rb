@@ -4,7 +4,7 @@
 # found at https://docs.chef.io/inspec/resources/
 
 describe package('nginx') do
-  it { should be_installed }
+  it { should_not be_installed }
 end
 
 describe service('nginx') do
