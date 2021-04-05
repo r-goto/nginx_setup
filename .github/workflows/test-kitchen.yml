@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Test Kitchen
 
 on: [ push, workflow_dispatch ]
@@ -10,39 +8,45 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Check if Chef installed
+      - name: Chef Installed?
         continue-on-error: true
-        id: check
-        run: sudo dpkg -l | grep chef
+        id: check-chef
+        run: chef -v
         
       - name: Install ChefWorkstation v21.2.278
-        if: steps.check.outcome == 'failure'
+        if: steps.check-chef.outcome == 'failure'
         run: |
-          wget -q https://packages.chef.io/files/stable/chef-workstation/21.2.278/ubuntu/20.04/chef-workstation_21.2.278-1_amd64.deb
-          sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
+          wget https://packages.chef.io/files/stable/chef-workstation/21.2.278/el/8/chef-workstation-21.2.278-1.el7.x86_64.rpm
+          sudo rpm -ivh chef-workstation-21.2.278-1.el7.x86_64.rpm
+          rm chef-workstation-21.2.278-1.el7.x86_64.rpm
           chef -v
   
+      - name: Docker Installed?
+        continue-on-error: true
+        id: check-docker
+        run: docker -v
+  
       - name: Install Docker
+        if: steps.check-docker.outcome == 'failure'
         run: |
-          sudo apt update -y
-          sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
-          sudo apt install -y docker-compose
+          sudo yum update -y
+          sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+          sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+          sudo yum install -y docker-ce docker-ce-cli containerd.io
           docker -v
           sudo usermod -aG docker $USER
-          sudo chmod 666 /var/run/docker.sock
+          sudo chmod 666 /run/docker.sock
           sudo service docker start
           service docker status
-
-      - name: Converge
+      - name: Kitchen Converge
         run: |
           kitchen destroy
           kitchen create
           kitchen converge
           
-      - name: Run Test
+      - name: Kitchen Test
         run: kitchen verify
-        
-      - name: Cleanup Containers 
+      
+      - name: Cleanup Containers
         if: always()
         run: kitchen destroy
-        
